@@ -84,6 +84,7 @@
   基于 [ASP.NET](https://asp.net/) Core 的高性能数据接收与处理服务
 - **[WPF 上位机监控平台]**
   实时展示设备状态与历史数据的可视化监控终端
+- <p align="center"> <img src="./Assets/main2.png" alt="关联项目" width="900"> </p>
 
 ------
 
