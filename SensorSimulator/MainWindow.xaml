@@ -1,0 +1,112 @@
+﻿<Window x:Class="SensorSimulator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="高并发数据模拟器" Height="680" Width="900"
+        Background="#F5F6FA">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <GroupBox Header="网关配置" Grid.Row="0" Margin="0,0,0,10" Padding="10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="网关地址: " VerticalAlignment="Center"/>
+                <TextBox x:Name="TxtHost" Width="200" Text="http://localhost:5294/api/ingestion/upload" VerticalAlignment="Center" Margin="5,0,15,0"/>
+                <Button x:Name="BtnTestConn" Content="测试连接" Width="100" Click="BtnTestConn_Click"/>
+                <TextBlock x:Name="TxtConnStatus" Margin="10,0,0,0" VerticalAlignment="Center" FontWeight="Bold"/>
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Header="压测策略与算法" Grid.Row="1" Margin="0,0,0,10" Padding="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="240"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="设备规模 (1-5000): " VerticalAlignment="Center" Grid.Row="0" Grid.Column="0"/>
+                <Slider x:Name="SldDeviceCount" Minimum="1" Maximum="5000" Value="1000" IsSnapToTickEnabled="True" TickFrequency="1" Grid.Row="0" Grid.Column="1" Margin="10,0"/>
+                <TextBlock Text="{Binding Value, ElementName=SldDeviceCount}" VerticalAlignment="Center" Grid.Row="0" Grid.Column="2" Width="40"/>
+
+                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="3" HorizontalAlignment="Right">
+                    <TextBlock Text="延迟(ms): " VerticalAlignment="Center"/>
+                    <TextBox x:Name="TxtDelay" Text="0" Width="40" Margin="0,0,10,0"/>
+                    <TextBlock Text="发送间隔(ms): " VerticalAlignment="Center"/>
+                    <TextBox x:Name="TxtInterval" Text="100" Width="50"/>
+                </StackPanel>
+
+                <TextBlock Text="数值区间: " VerticalAlignment="Center" Grid.Row="1" Grid.Column="0" Margin="0,10,0,0"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="10,10,10,0" VerticalAlignment="Center">
+                    <TextBox x:Name="TxtMinVal" Text="0" Width="60" TextAlignment="Center"/>
+                    <TextBlock Text="  ~  " VerticalAlignment="Center"/>
+                    <TextBox x:Name="TxtMaxVal" Text="100" Width="60" TextAlignment="Center"/>
+                </StackPanel>
+
+                <TextBlock Text="数据模拟模式: " VerticalAlignment="Center" Grid.Row="2" Grid.Column="0" Margin="0,10,0,0"/>
+                <ComboBox x:Name="CboDataMode" SelectedIndex="1" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="10,10,10,0">
+                    <ComboBoxItem Content="纯随机模式 (Pure Random)"/>
+                    <ComboBoxItem Content="布朗运动 (Brownian Motion / K-Line)"/>
+                    <ComboBoxItem Content="波峰异构正弦波 (Heterogeneous Sine Wave)"/>
+                </ComboBox>
+
+                <TextBlock Text="队列满时策略: " VerticalAlignment="Center" Grid.Row="3" Grid.Column="0" Margin="0,10,0,0"/>
+                <ComboBox x:Name="CboBackpressureMode" SelectedIndex="0" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Margin="10,10,10,0">
+                    <ComboBoxItem Content="直接拒绝并丢弃 (Wait/Reject)"/>
+                    <ComboBoxItem Content="丢弃队列最旧数据 (Drop Oldest)"/>
+                    <ComboBoxItem Content="丢弃当前最新数据 (Drop Write)"/>
+                </ComboBox>
+
+                <Button x:Name="BtnToggleStart" Content="启动压测" Grid.Row="1" Grid.RowSpan="3" Grid.Column="3" Margin="10,10,0,0" Click="BtnToggleStart_Click" Background="#0078D7" Foreground="White" FontWeight="Bold"/>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Header="实时监控看板" Grid.Row="2" Padding="10">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <UniformGrid Columns="5" Grid.Row="0" Margin="0,0,0,15">
+                    <StackPanel>
+                        <TextBlock Text="当前 TPS" Foreground="Gray"/>
+                        <TextBlock x:Name="TxtTps" Text="0" FontSize="24" FontWeight="Bold" Foreground="#0078D7"/>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="成功总数" Foreground="Gray"/>
+                        <TextBlock x:Name="TxtSuccess" Text="0" FontSize="24" FontWeight="Bold" Foreground="Green"/>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="失败总数" Foreground="Gray"/>
+                        <TextBlock x:Name="TxtFail" Text="0" FontSize="24" FontWeight="Bold" Foreground="Red"/>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="队列积压" Foreground="Gray"/>
+                        <TextBlock x:Name="TxtBacklog" Text="0" FontSize="24" FontWeight="Bold" Foreground="DarkOrange"/>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="丢弃总数" Foreground="Gray"/>
+                        <TextBlock x:Name="TxtDropped" Text="0" FontSize="24" FontWeight="Bold" Foreground="DarkRed"/>
+                    </StackPanel>
+                </UniformGrid>
+
+                <Border Grid.Row="1" Background="Black" CornerRadius="5" ClipToBounds="True">
+                    <Canvas x:Name="ChartCanvas" SizeChanged="ChartCanvas_SizeChanged">
+                        <Polyline x:Name="Device1Chart" Stroke="#00FF00" StrokeThickness="1.5" />
+                    </Canvas>
+                </Border>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</Window>
